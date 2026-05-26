@@ -4,300 +4,1344 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Toward agentic engineering at Wellhub</title>
-<meta name="description" content="An analysis of the SPDD/cia proposal and the path to AI-native delivery at Wellhub.">
+<meta name="description" content="An analysis of the SPDD/cia proposal and the path to AI-native delivery.">
 <meta name="robots" content="noindex, nofollow">
-<link rel="stylesheet" href="assets/styles.css">
+<meta name="theme-color" content="#06111e">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,400;1,400;1,500&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   Toward agentic engineering at Wellhub — slide deck
+   ============================================================ */
+
+:root {
+  --bg:       #06111e;
+  --bg-2:     #0c1a2e;
+  --bg-3:     #122440;
+  --ink:      #ffffff;
+  --ink-2:    #cad6e7;
+  --ink-3:    #7d8da6;
+  --ink-4:    #4a5a78;
+  --line:     #1a2a44;
+  --line-2:   #28395a;
+  --accent:   #6ba3ff;
+  --accent-dim:  #4a7cd6;
+  --accent-deep: #0f3a73;
+  --warm:     #ff966e;
+  --good:     #4ade80;
+  --good-bg:  rgba(74, 222, 128, 0.12);
+  --bad:      #f87171;
+  --bad-bg:   rgba(248, 113, 113, 0.12);
+  --warn:     #fbbf24;
+  --warn-bg:  rgba(251, 191, 36, 0.12);
+
+  --display: 'Jost', 'Futura', 'Century Gothic', system-ui, sans-serif;
+  --sans:    'Jost', 'Futura', 'Century Gothic', system-ui, sans-serif;
+  --serif:   'Fraunces', Georgia, serif;
+  --mono:    'DM Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #000;
+  color: var(--ink);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  min-height: 100vh;
+  scroll-snap-type: y mandatory;
+  overflow-y: scroll;
+  overscroll-behavior: contain;
+}
+
+.deck { display: block; }
+
+/* ============== slide skeleton ============== */
+
+.slide {
+  position: relative;
+  min-height: 100vh;
+  background: var(--bg);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.slide::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 1200px 800px at 8% -10%, rgba(107, 163, 255, 0.08), transparent 60%),
+    radial-gradient(ellipse 900px 600px at 95% 100%, rgba(15, 58, 115, 0.18), transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.frame {
+  position: relative;
+  flex: 1;
+  padding: 110px 96px 80px;
+  display: flex;
+  flex-direction: column;
+  z-index: 1;
+  max-width: 1500px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ============== chrome ============== */
+
+.chrome {
+  position: absolute;
+  top: 30px; left: 96px; right: 96px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 2;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.chrome .dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+  border-radius: 999px;
+  margin: 0 12px 2px;
+  vertical-align: middle;
+  box-shadow: 0 0 12px rgba(107, 163, 255, 0.6);
+}
+.chrome__right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.chrome__mark {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--ink);
+}
+.chrome__pageno {
+  border-left: 1px solid var(--line-2);
+  padding-left: 16px;
+  color: var(--ink-3);
+}
+
+/* ============== type ============== */
+
+.kicker {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0 0 28px 0;
+}
+.kicker::before {
+  content: '';
+  width: 32px;
+  height: 1px;
+  background: var(--accent);
+}
+
+.display {
+  font-family: var(--display);
+  font-weight: 400;
+  line-height: 0.98;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  margin: 0;
+}
+.display em, .display i {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+}
+.display .light { font-weight: 300; color: var(--ink-3); }
+.display .accent { color: var(--accent); }
+
+h1.display { font-size: clamp(40px, 6.2vw, 96px); }
+h2.display { font-size: clamp(34px, 5vw, 72px); }
+h3.display { font-size: clamp(24px, 3vw, 36px); }
+
+.subhead {
+  font-family: var(--display);
+  font-weight: 300;
+  font-size: clamp(18px, 2vw, 26px);
+  line-height: 1.35;
+  color: var(--ink-2);
+  margin: 22px 0 0 0;
+  max-width: 880px;
+}
+.subhead em { font-family: var(--serif); font-style: italic; font-weight: 400; color: var(--ink); }
+
+.body-text {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink-2);
+  max-width: 720px;
+}
+.body-text strong { color: var(--ink); font-weight: 500; }
+.body-text em { font-family: var(--serif); font-style: italic; font-weight: 400; color: var(--ink); }
+
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.accent-text { color: var(--accent); }
+.muted { color: var(--ink-3); }
+
+code, .code-inline {
+  font-family: var(--mono);
+  font-size: 0.86em;
+  background: var(--bg-3);
+  border: 1px solid var(--line-2);
+  padding: 1px 6px;
+  border-radius: 3px;
+  color: var(--ink);
+}
+
+/* ============== bottom marker ============== */
+
+.slide__bottom {
+  position: absolute;
+  bottom: 32px; left: 96px; right: 96px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  z-index: 2;
+}
+.slide__bottom .hint { display: flex; align-items: center; gap: 10px; }
+.slide__bottom .hint .arrow {
+  display: inline-block;
+  width: 18px;
+  height: 1px;
+  background: var(--ink-4);
+  position: relative;
+}
+.slide__bottom .hint .arrow::after {
+  content: '';
+  position: absolute;
+  right: -1px; top: -3px;
+  width: 7px; height: 7px;
+  border-right: 1px solid var(--ink-4);
+  border-bottom: 1px solid var(--ink-4);
+  transform: rotate(-45deg);
+}
+
+/* ============== page-no overlay always visible ============== */
+
+.deck-progress {
+  position: fixed;
+  right: 32px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+.deck-progress a {
+  color: inherit;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+  cursor: pointer;
+  transition: color 200ms;
+}
+.deck-progress a:hover { color: var(--ink-2); }
+.deck-progress a::before {
+  content: '';
+  width: 20px;
+  height: 1px;
+  background: var(--line-2);
+  transition: background 200ms, width 200ms;
+}
+.deck-progress a.is-active { color: var(--accent); }
+.deck-progress a.is-active::before { background: var(--accent); width: 32px; }
+
+/* ============== layout helpers ============== */
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: start; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 28px; }
+.grid-3-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 56px; align-items: start; }
+
+.row { display: flex; gap: 16px; align-items: stretch; }
+
+.stack { display: flex; flex-direction: column; gap: 18px; }
+.stack--lg { gap: 28px; }
+
+.divider { height: 1px; background: var(--line-2); margin: 28px 0; }
+.divider--accent { background: linear-gradient(90deg, var(--accent), transparent); }
+
+.spacer { flex: 1; }
+
+/* ============== cards ============== */
+
+.card {
+  background: var(--bg-2);
+  border: 1px solid var(--line-2);
+  padding: 24px 26px;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--line-2), transparent);
+}
+.card .card-num {
+  font-family: var(--display);
+  font-weight: 300;
+  font-size: 44px;
+  line-height: 0.9;
+  color: var(--ink-4);
+  letter-spacing: -0.02em;
+}
+.card .card-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin-top: 14px;
+  font-weight: 500;
+}
+.card .card-body {
+  font-size: 14px;
+  color: var(--ink-2);
+  line-height: 1.5;
+  margin-top: 8px;
+}
+.card.is-accent { border-color: var(--accent-dim); background: linear-gradient(180deg, rgba(107, 163, 255, 0.06), var(--bg-2)); }
+.card.is-accent .card-num { color: var(--accent); }
+.card.is-warm { border-color: var(--warm); background: linear-gradient(180deg, rgba(255, 150, 110, 0.06), var(--bg-2)); }
+.card.is-warm .card-num { color: var(--warm); }
+
+/* KPI card */
+.kpi {
+  background: var(--bg-2);
+  border: 1px solid var(--line-2);
+  padding: 28px 28px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+}
+.kpi::after {
+  content: '';
+  position: absolute; left: 0; right: 0; top: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), transparent 80%);
+}
+.kpi .kpi-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.kpi .kpi-value {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 56px;
+  line-height: 1;
+  color: var(--ink);
+  letter-spacing: -0.025em;
+  margin-top: 8px;
+}
+.kpi .kpi-value em { font-family: var(--serif); font-style: italic; font-weight: 400; }
+.kpi .kpi-sub {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-top: 6px;
+}
+
+/* posture bar */
+.posture {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 18px;
+  margin-top: 36px;
+}
+.posture-cell {
+  background: var(--bg-2);
+  border: 1px solid var(--line-2);
+  padding: 26px 24px 22px;
+  position: relative;
+  border-radius: 4px;
+}
+.posture-cell.is-here {
+  border-color: var(--bad);
+  background: linear-gradient(180deg, rgba(248, 113, 113, 0.10), var(--bg-2));
+  box-shadow: 0 6px 32px rgba(248, 113, 113, 0.18);
+}
+.posture-cell.is-adjacent { border-color: var(--warn); }
+.posture-cell.is-far {
+  border-color: var(--accent-dim);
+  background: linear-gradient(180deg, rgba(107, 163, 255, 0.08), var(--bg-2));
+}
+.posture-cell .posture-tag {
+  position: absolute;
+  top: -10px; left: 18px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--bg);
+}
+.posture-cell.is-here .posture-tag { color: var(--bad); border: 1px solid var(--bad); }
+.posture-cell.is-adjacent .posture-tag { color: var(--warn); border: 1px solid var(--warn); }
+.posture-cell.is-far .posture-tag { color: var(--accent); border: 1px solid var(--accent); }
+.posture-cell .posture-name {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 22px;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+.posture-cell .posture-text {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+.posture-cell .posture-text + .posture-text { margin-top: 8px; color: var(--ink-3); }
+
+/* alignment matrix */
+.matrix {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: 1px solid var(--line-2);
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--bg-2);
+}
+.matrix__row {
+  display: grid;
+  grid-template-columns: 1.6fr 0.6fr;
+  align-items: center;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--line);
+}
+.matrix__row:last-child, .matrix__row:nth-last-child(2) { border-bottom: none; }
+.matrix__label {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--ink);
+}
+.matrix__label small { display: block; font-family: var(--display); font-weight: 400; font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+.matrix__verdict {
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.verdict-pill {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 999px;
+  font-weight: 500;
+}
+.verdict-pill.good { color: var(--good); background: var(--good-bg); border: 1px solid rgba(74, 222, 128, 0.35); }
+.verdict-pill.warn { color: var(--warn); background: var(--warn-bg); border: 1px solid rgba(251, 191, 36, 0.35); }
+.verdict-pill.bad  { color: var(--bad);  background: var(--bad-bg);  border: 1px solid rgba(248, 113, 113, 0.35); }
+
+/* agent list */
+.agent {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  gap: 18px;
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+  align-items: start;
+}
+.agent:first-child { border-top: 0; }
+.agent__num {
+  font-family: var(--display);
+  font-weight: 300;
+  font-size: 32px;
+  color: var(--accent);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.agent__name {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 18px;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.agent__desc { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+
+/* steps */
+.steps {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--line-2);
+  margin-top: 32px;
+}
+.step {
+  padding: 22px 22px 28px;
+  border-right: 1px solid var(--line-2);
+  background: var(--bg-2);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.step:last-child { border-right: 0; }
+.step:hover { background: var(--bg-3); }
+.step .step__n {
+  font-family: var(--display);
+  font-weight: 300;
+  font-size: 36px;
+  line-height: 0.9;
+  color: var(--accent);
+  letter-spacing: -0.02em;
+}
+.step .step__title {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--ink);
+  margin-top: 18px;
+  line-height: 1.3;
+}
+.step .step__desc {
+  font-size: 12.5px;
+  color: var(--ink-2);
+  line-height: 1.5;
+  margin-top: 10px;
+}
+
+/* cover slide */
+.cover-slot {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.cover-meta {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.cover-meta span + span::before { content: '·'; margin-right: 16px; color: var(--ink-4); }
+
+/* pull-quote variant */
+.pull-quote {
+  font-family: var(--display);
+  font-weight: 300;
+  font-size: clamp(28px, 4vw, 52px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  max-width: 1100px;
+  margin: 0;
+}
+.pull-quote em { font-family: var(--serif); font-style: italic; font-weight: 400; color: var(--accent); }
+
+/* footer slide */
+.tag-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-top: 36px;
+}
+.tag-row .tag {
+  background: var(--bg-2);
+  border: 1px solid var(--line-2);
+  border-radius: 4px;
+  padding: 20px 22px;
+}
+.tag .tag-head {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.tag .tag-body {
+  font-size: 13px;
+  color: var(--ink-3);
+  line-height: 1.5;
+}
+
+/* fade-in animation as slides enter */
+.fade-up {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 700ms cubic-bezier(0.2, 0.7, 0.2, 1), transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.fade-up.in {
+  opacity: 1;
+  transform: translateY(0);
+}
+.fade-up.d1 { transition-delay: 100ms; }
+.fade-up.d2 { transition-delay: 200ms; }
+.fade-up.d3 { transition-delay: 300ms; }
+.fade-up.d4 { transition-delay: 400ms; }
+
+/* alt-view link */
+.alt-view {
+  position: fixed;
+  left: 32px;
+  bottom: 24px;
+  z-index: 50;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  text-decoration: none;
+  padding: 6px 12px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: rgba(6, 17, 30, 0.6);
+  backdrop-filter: blur(8px);
+  transition: color 180ms, border-color 180ms;
+}
+.alt-view:hover { color: var(--accent); border-color: var(--accent); }
+
+/* responsive */
+@media (max-width: 1100px) {
+  .frame { padding: 96px 48px 70px; }
+  .chrome { left: 48px; right: 48px; }
+  .slide__bottom { left: 48px; right: 48px; }
+  .grid-2, .grid-3-1 { grid-template-columns: 1fr; gap: 32px; }
+  .grid-3 { grid-template-columns: 1fr 1fr; }
+  .posture { grid-template-columns: 1fr; }
+  .steps { grid-template-columns: 1fr; }
+  .step { border-right: 0; border-bottom: 1px solid var(--line-2); }
+  .step:last-child { border-bottom: 0; }
+  .tag-row { grid-template-columns: 1fr 1fr; }
+  .deck-progress { display: none; }
+}
+@media (max-width: 700px) {
+  .frame { padding: 84px 22px 60px; }
+  .chrome { left: 22px; right: 22px; font-size: 10px; }
+  .slide__bottom { left: 22px; right: 22px; }
+  .matrix { grid-template-columns: 1fr; }
+  .grid-3, .tag-row { grid-template-columns: 1fr; }
+  .alt-view { left: 16px; bottom: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .fade-up { transition: none; opacity: 1; transform: none; }
+}
+</style>
 </head>
+
 <body>
 
-<header class="hero">
-  <div class="hero__inner">
-    <span class="kicker">Wellhub  ·  Engineering strategy</span>
-    <h1>Toward agentic engineering at Wellhub</h1>
-    <p class="hero__subtitle">An analysis of the SPDD/<code>cia</code> proposal, and the path to AI-native delivery.</p>
-    <p class="hero__lede">The current proposal is intellectually serious and well disciplined. It is, however, a governance instinct expressed in agentic language. It hardens the floor of AI usage at Wellhub; it does not yet raise the ceiling. The work ahead is to keep the floor, and build the ceiling.</p>
+<!-- Fixed UI -->
+<a class="alt-view" href="simple.html">Document view  →</a>
+
+<nav class="deck-progress" aria-label="Deck progress">
+  <a href="#s1" data-target="s1"><span>001</span></a>
+  <a href="#s2" data-target="s2"><span>002</span></a>
+  <a href="#s3" data-target="s3"><span>003</span></a>
+  <a href="#s4" data-target="s4"><span>004</span></a>
+  <a href="#s5" data-target="s5"><span>005</span></a>
+  <a href="#s6" data-target="s6"><span>006</span></a>
+  <a href="#s7" data-target="s7"><span>007</span></a>
+  <a href="#s8" data-target="s8"><span>008</span></a>
+  <a href="#s9" data-target="s9"><span>009</span></a>
+  <a href="#s10" data-target="s10"><span>010</span></a>
+</nav>
+
+<main class="deck">
+
+<!-- ============ Slide 001: Cover ============ -->
+<section class="slide" id="s1">
+  <div class="chrome">
+    <div class="chrome__left">WELLHUB <span class="dot"></span> ENGINEERING STRATEGY</div>
+    <div class="chrome__right">
+      <span class="chrome__mark">xgeeks</span>
+      <span class="chrome__pageno">001 / 010</span>
+    </div>
   </div>
-</header>
+  <div class="frame">
+    <p class="kicker fade-up">Advisory · Confidential</p>
+    <h1 class="display fade-up d1">
+      Toward<br>
+      <em>agentic</em> engineering<br>
+      at Wellhub.
+    </h1>
+    <p class="subhead fade-up d2">An analysis of the SPDD/<code>cia</code> proposal, and the path to AI-native delivery.</p>
 
-<div class="layout">
-
-  <!-- ============ Sticky TOC ============ -->
-  <nav class="toc" aria-label="Table of contents">
-    <p class="toc__title">Contents</p>
-    <ol>
-      <li><a href="#strengths"><span class="toc__num">1.</span>Strengths to preserve</a></li>
-      <li><a href="#gaps"><span class="toc__num">2.</span>Critical gaps</a></li>
-      <li><a href="#positioning"><span class="toc__num">3.</span>AI-assisted vs AI-native</a></li>
-      <li><a href="#picture"><span class="toc__num">4.</span>The AI-native version</a></li>
-      <li><a href="#readiness"><span class="toc__num">5.</span>Readiness and blockers</a></li>
-      <li><a href="#path"><span class="toc__num">6.</span>The path forward</a></li>
-      <li><a href="#closing"><span class="toc__num">7.</span>Closing perspective</a></li>
-    </ol>
-  </nav>
-
-  <!-- ============ Main content ============ -->
-  <main class="content">
-
-    <section id="intro">
-      <p>This document reviews the proposal <em>"Structured Prompt-Driven Development (SPDD) for BASE &amp; CIA"</em> and assesses how well it positions Wellhub for the shift toward agentic engineering. The intent is constructive. Most of what the proposal does well should be preserved. Several structural decisions, however, need to evolve before the design can support a genuinely AI-native operating model.</p>
-      <p>The analysis is organised in three movements. First, the elements of the current proposal that should be kept and built upon. Second, the gaps that limit its ability to deliver AI-native outcomes. Third, a concrete picture of what an AI-native version looks like, together with the recommended path to get there.</p>
-    </section>
-
-    <!-- 1 -->
-    <section id="strengths">
-      <h2><span class="section-num">1.</span>Strengths to preserve</h2>
-      <p>The proposal demonstrates an unusual degree of discipline for an AI initiative. Several decisions are already aligned with how AI-native organisations operate, and they should survive any redesign.</p>
-
-      <h3>Prompts treated as first-class artifacts</h3>
-      <p>Versioning prompts, reviewing them like code, and keeping them in two-way sync with the codebase (via <code>prompt-update</code> and <code>sync</code>) is the single strongest idea in the document. Most enterprises adopting AI end up with private chat histories and a folklore-grade understanding of their own workflows. This proposal refuses that failure mode from page one.</p>
-
-      <h3>Binding to the existing SDLC</h3>
-      <p>Each <code>cia</code> command maps to a stage Wellhub already runs (RFC, Privacy/Fraud/Infosec sign-off, DB migrations, deploy windows, post-deploy monitoring, on-call runbooks). This avoids the most common failure pattern of internal AI initiatives, which is becoming a sandbox no one ships from.</p>
-
-      <h3>A disciplined Non-Goals section</h3>
-      <p>Explicitly excluding hotfixes, exploratory spikes, one-off scripts, and aesthetic work shows mature scoping. Refusing to bypass CODEOWNERS, Infosec, Privacy, and Fraud approvals reinforces the same instinct.</p>
-
-      <h3>The Code Red audit story</h3>
-      <p>Making every AI-assisted change traceable back to the prompt that produced it is exactly the answer Infosec and Privacy want to hear, and increasingly the answer regulators and auditors will want as well. This is a defensible, hard-to-copy outcome.</p>
-
-      <h3>Norms and Safeguards as shared organisational assets</h3>
-      <p>Pulling team conventions and non-negotiables out of individual prompts and into a governed catalog produces the right primitive. These behave like organisational "house rules" for any AI workflow, and they will outlive whatever tooling Wellhub adopts next.</p>
-
-      <h3>Operationally sane technical choices</h3>
-      <p>Single Go binary, model-agnostic, gateway-mediated calls, per-service <code>.spdd.yaml</code>, central templates pinned by version. Nothing exotic. It can be built, and it can be operated.</p>
-
-      <div class="callout">
-        <span class="callout-head">Headline for section 1.</span>
-        The strongest contribution of the proposal is its <em>artifact discipline</em>: prompts in git, reviewed like code, kept in sync with what shipped, sitting on top of a shared Norms and Safeguards catalog. Whatever Wellhub builds next, this should be kept.
+    <div class="cover-slot fade-up d3">
+      <div class="cover-meta">
+        <span>10 slides</span>
+        <span>~12 minute read</span>
+        <span>Subject: SPDD for BASE &amp; CIA</span>
       </div>
-    </section>
+    </div>
+  </div>
+  <div class="slide__bottom">
+    <span>Scroll, arrow keys, or click the index to navigate</span>
+    <span class="hint">Begin <span class="arrow"></span></span>
+  </div>
+</section>
 
-    <!-- 2 -->
-    <section id="gaps">
-      <h2><span class="section-num">2.</span>Critical gaps in the current design</h2>
-      <p>While the foundations are strong, several structural decisions limit the proposal's ability to deliver an AI-native operating model. The observations below are ordered by impact, with the most consequential first. They are intended as construction notes for the next iteration of the design, not as a verdict on the work done so far.</p>
+<!-- ============ Slide 002: Diagnosis ============ -->
+<section class="slide" id="s2">
+  <div class="chrome">
+    <div class="chrome__left">DIAGNOSIS <span class="dot"></span> THE STARTING POINT</div>
+    <div class="chrome__right">
+      <span class="chrome__mark">xgeeks</span>
+      <span class="chrome__pageno">002 / 010</span>
+    </div>
+  </div>
+  <div class="frame">
+    <p class="kicker fade-up">Where this proposal lands</p>
+    <h2 class="display fade-up d1">
+      Intellectually serious.<br>
+      <em>Architecturally conservative.</em>
+    </h2>
+    <p class="subhead fade-up d2">
+      The current proposal is a governance instinct expressed in agentic language. It hardens the floor of AI usage at Wellhub. <em>It does not yet raise the ceiling.</em>
+    </p>
 
-      <h3>2.1  The design does not yet contain agents</h3>
-      <p>The document is titled <em>"SDLC - Agents,"</em> but architecturally it is a CLI that fills structured prompt templates and returns the LLM's response for human review. There is no plan, act, observe loop; no tool use inside an agent; no self-correction; no subagent delegation; no background workers; and no agent that initiates anything on its own. The word <em>agent</em> appears as a label, not as a design element. This is structured prompting, which is useful and disciplined, but it sits in a different capability category from agentic engineering.</p>
+    <div class="divider divider--accent fade-up d3" style="margin-top: 64px;"></div>
 
-      <h3>2.2  AI is positioned as a generator, not a collaborator</h3>
-      <p>The proposal assumes the engineer is always the author and the AI is called in moments to draft on demand. That assumption leaves most of today's productivity gains on the table. Modern AI-native delivery is continuous: in the editor (tools such as Claude Code, Cursor, Copilot Workspace), on the pull request (review agents, automated test generation), and in operations (on-call triage, autonomous alert tuning). A CLI invoked deliberately before doing work is the wrong surface area for any of those gains.</p>
+    <div class="grid-3 fade-up d3" style="margin-top: 24px;">
+      <div>
+        <div class="kicker" style="margin-bottom: 12px;">What it is</div>
+        <p class="body-text">A Go CLI <code>cia</code> wrapping structured prompts as Markdown templates, bound to each SDLC stage. Versioned, reviewed, gated.</p>
+      </div>
+      <div>
+        <div class="kicker" style="margin-bottom: 12px;">What it isn't</div>
+        <p class="body-text">An agentic system. There are no agents in the design. No autonomous loops, no tool use, no self-correction, no initiation by AI.</p>
+      </div>
+      <div>
+        <div class="kicker" style="margin-bottom: 12px;">Why it matters</div>
+        <p class="body-text">It is the right first chapter. It is not yet the book. AI-native organisations differ by what AI <em>does</em>, not what humans add around it.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide__bottom">
+    <span>Section 1  ·  Where the proposal stands</span>
+    <span class="hint">Continue <span class="arrow"></span></span>
+  </div>
+</section>
 
-      <h3>2.3  The bottleneck identified is not the bottleneck solved</h3>
-      <p>The Abstract diagnoses the constraint correctly: delivery is limited by ambiguity, review load, inconsistency, and production risk, not by typing speed. The proposed remedy then adds artifacts that humans must produce and review, which <em>shifts</em> review load rather than reducing it. The real lever for the stated bottleneck is agentic pre-review, agentic test generation, and agentic incident triage, none of which appear in the design.</p>
+<!-- ============ Slide 003: Strengths ============ -->
+<section class="slide" id="s3">
+  <div class="chrome">
+    <div class="chrome__left">001 <span class="dot"></span> STRENGTHS TO PRESERVE</div>
+    <div class="chrome__right">
+      <span class="chrome__mark">xgeeks</span>
+      <span class="chrome__pageno">003 / 010</span>
+    </div>
+  </div>
+  <div class="frame">
+    <p class="kicker fade-up">What's working</p>
+    <h2 class="display fade-up d1" style="max-width: 1100px;">
+      Six decisions that<br>
+      <em>should survive</em> any redesign.
+    </h2>
+    <p class="body-text fade-up d2" style="margin-top: 18px; max-width: 760px;">
+      The proposal shows unusual discipline for an AI initiative. These are the ideas that are already aligned with how AI-native organisations operate. Keep them.
+    </p>
 
-      <h3>2.4  No evaluation, and therefore no learning loop</h3>
-      <p>Versioning a prompt does not mean improving it. The proposal does not mention golden eval sets, regression CI for prompt changes, quality dashboards, or feedback signals (PR rework rate, review comments per AI-generated artifact, escape defects) flowing back into the prompt library. Without this, the "compounding team asset" claim has no mechanism behind it. Prompts will drift and decay in the same way most internal documentation does. <strong>Evaluation is the single highest-leverage capability missing from the current design.</strong></p>
+    <div class="grid-3 fade-up d3" style="margin-top: 40px;">
+      <div class="card">
+        <div class="card-num">01</div>
+        <div class="card-label">Prompts as first-class artifacts</div>
+        <div class="card-body">Versioned, reviewed like code, kept in two-way sync with the codebase. The single strongest idea in the document.</div>
+      </div>
+      <div class="card">
+        <div class="card-num">02</div>
+        <div class="card-label">Bound to the existing SDLC</div>
+        <div class="card-body">Commands map to real stages: RFC, DB migrations, deploy windows, post-deploy, on-call. Not a parallel sandbox.</div>
+      </div>
+      <div class="card">
+        <div class="card-num">03</div>
+        <div class="card-label">A disciplined Non-Goals section</div>
+        <div class="card-body">Hotfixes, spikes, and aesthetic work explicitly out of scope. No bypassing CODEOWNERS, Infosec, Privacy, Fraud.</div>
+      </div>
+      <div class="card">
+        <div class="card-num">04</div>
+        <div class="card-label">The Code Red audit story</div>
+        <div class="card-body">Every AI-assisted change traceable back to the prompt that produced it. Exactly what regulators and auditors want.</div>
+      </div>
+      <div class="card">
+        <div class="card-num">05</div>
+        <div class="card-label">Norms &amp; Safeguards catalog</div>
+        <div class="card-body">Team conventions and non-negotiables in a governed, reusable asset. Behaves like organisational "house rules" for any AI workflow.</div>
+      </div>
+      <div class="card">
+        <div class="card-num">06</div>
+        <div class="card-label">Operationally sane choices</div>
+        <div class="card-body">Single Go binary, model-agnostic, gateway-mediated, per-service config, central templates pinned by version. Shippable.</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide__bottom">
+    <span>Section 1  ·  Strengths to preserve</span>
+    <span class="hint">Continue <span class="arrow"></span></span>
+  </div>
+</section>
 
-      <h3>2.5  No tool layer for agents (MCP or equivalent)</h3>
-      <p>Integrations with Datadog, Argo, Vault, Sonarcloud, the gympass-app catalog, the Production Queries sheet, and IAM are all delivered through bespoke scripts inside a single binary. The industry is converging on the Model Context Protocol (MCP) as the standard way to expose internal systems to AI agents. Building a parallel script-orchestration layer creates two problems at once: it produces technical debt the day it ships, and it traps these capabilities inside the CLI. No IDE agent, PR-review agent, or on-call agent could call them without being rewritten.</p>
+<!-- ============ Slide 004: Critical gaps ============ -->
+<section class="slide" id="s4">
+  <div class="chrome">
+    <div class="chrome__left">002 <span class="dot"></span> CRITICAL GAPS</div>
+    <div class="chrome__right">
+      <span class="chrome__mark">xgeeks</span>
+      <span class="chrome__pageno">004 / 010</span>
+    </div>
+  </div>
+  <div class="frame">
+    <p class="kicker fade-up">Where the design falls short</p>
+    <h2 class="display fade-up d1" style="max-width: 1100px;">
+      Ten construction notes,<br>
+      <em>ordered by impact.</em>
+    </h2>
 
-      <h3>2.6  No autonomy gradient</h3>
-      <p>Every command sits at the same maturity level: human invokes, AI drafts, human approves. A serious agentic strategy distinguishes between <em>copilot</em> (suggests), <em>autopilot</em> (acts with confirmation), and <em>autonomous</em> (acts within guardrails), and explicitly moves specific workflows along that gradient over time. Without this framing, nothing in the design can ever become more than a copilot, which is precisely where most enterprise AI programmes stall.</p>
+    <div class="grid-2 fade-up d2" style="margin-top: 44px; gap: 48px;">
+      <div class="stack">
+        <div>
+          <div class="kicker">2.1</div>
+          <h3 class="display" style="font-size: 22px; margin-top: 10px;">No agents in the design</h3>
+          <p class="body-text" style="margin-top: 6px;">Titled <em>"SDLC&nbsp;-&nbsp;Agents,"</em> but architecturally a CLI that fills templates for human review. No plan-act-observe loop, no tool use, no initiation by AI.</p>
+        </div>
+        <div>
+          <div class="kicker">2.2</div>
+          <h3 class="display" style="font-size: 22px; margin-top: 10px;">AI as generator, not collaborator</h3>
+          <p class="body-text" style="margin-top: 6px;">A CLI invoked deliberately before doing work is the wrong surface area for the gains that actually happen in the editor, in the PR, and in operations.</p>
+        </div>
+        <div>
+          <div class="kicker">2.3</div>
+          <h3 class="display" style="font-size: 22px; margin-top: 10px;">Solves the wrong bottleneck</h3>
+          <p class="body-text" style="margin-top: 6px;">The Abstract names ambiguity, review load, inconsistency, and prod risk. The remedy adds artifacts humans must produce and review. Shifts the load. Does not reduce it.</p>
+        </div>
+        <div>
+          <div class="kicker">2.4</div>
+          <h3 class="display" style="font-size: 22px; margin-top: 10px;">No evaluation, no learning loop</h3>
+          <p class="body-text" style="margin-top: 6px;">Versioning a prompt does not mean improving it. The "compounding asset" claim has no measurement behind it. <strong>The single highest-leverage capability missing.</strong></p>
+        </div>
+        <div>
+          <div class="kicker">2.5</div>
+          <h3 class="display" style="font-size: 22px; margin-top: 10px;">No tool layer (MCP or equivalent)</h3>
+          <p class="body-text" style="margin-top: 6px;">Integrations are scripts wired into one binary. The industry is converging on MCP. Capabilities are trapped inside the CLI.</p>
+        </div>
+      </div>
+      <div class="stack">
+        <div>
+          <div class="kicker">2.6</div>
+          <h3 class="display" style="font-size: 22px; margin-top: 10px;">No autonomy gradient</h3>
+          <p class="body-text" style="margin-top: 6px;">Every command sits at copilot. No articulated path to autopilot or autonomous, which is where most enterprise AI programmes stall.</p>
+        </div>
+        <div>
+          <div class="kicker">2.7</div>
+          <h3 class="display" style="font-size: 22px; margin-top: 10px;">Security model needs depth</h3>
+          <p class="body-text" style="margin-top: 6px;"><em>"The gateway redacts what needs redacting"</em> is a sentence, not a design. No prompt-injection story, no credentials story.</p>
+        </div>
+        <div>
+          <div class="kicker">2.8</div>
+          <h3 class="display" style="font-size: 22px; margin-top: 10px;">Excluded work is most of the work</h3>
+          <p class="body-text" style="margin-top: 6px;">Hotfixes, spikes, exploratory work out of scope. In any real organisation those modes are a large share of throughput. Engineers will route around SPDD for all of it.</p>
+        </div>
+        <div>
+          <div class="kicker">2.9</div>
+          <h3 class="display" style="font-size: 22px; margin-top: 10px;">Several scripts should be agents</h3>
+          <p class="body-text" style="margin-top: 6px;"><code>cia post-deploy</code>, <code>cia alert-coverage</code>, <code>cia deploy-window</code>, <code>cia db-query-plan</code>: bounded, low-blast-radius loops that should run continuously, not be invoked.</p>
+        </div>
+        <div>
+          <div class="kicker">2.10</div>
+          <h3 class="display" style="font-size: 22px; margin-top: 10px;">No adoption or outcome plan</h3>
+          <p class="body-text" style="margin-top: 6px;">No pilot scope, no rollout sequence, no token-spend projection, no commitment to which numbers will move. The most addressable gap.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide__bottom">
+    <span>Section 2  ·  Critical gaps</span>
+    <span class="hint">Continue <span class="arrow"></span></span>
+  </div>
+</section>
 
-      <h3>2.7  The security model needs more depth</h3>
-      <p>The phrase <em>"the gateway redacts what needs redacting"</em> is a sentence, not a design. For an organisation operating under GDPR, LGPD, and PCI scope, this needs explicit answers on PII and secrets detection, model-provider data-handling SLAs, prompt and response retention, prompt-injection defence (which becomes load-bearing the moment agents act rather than only suggest), and blast-radius limits for agents holding credentials. None of these are addressed at the depth the rest of the document deserves.</p>
+<!-- ============ Slide 005: Posture ============ -->
+<section class="slide" id="s5">
+  <div class="chrome">
+    <div class="chrome__left">003 <span class="dot"></span> POSITIONING</div>
+    <div class="chrome__right">
+      <span class="chrome__mark">xgeeks</span>
+      <span class="chrome__pageno">005 / 010</span>
+    </div>
+  </div>
+  <div class="frame">
+    <p class="kicker fade-up">Three postures, routinely conflated</p>
+    <h2 class="display fade-up d1" style="max-width: 1100px;">
+      AI-assisted is not<br>
+      AI-augmented is not<br>
+      <em>AI-native.</em>
+    </h2>
 
-      <h3>2.8  Hotfixes, spikes, and exploratory work are explicitly excluded</h3>
-      <p>The exclusion is intellectually honest, but operationally significant. In any real engineering organisation those modes account for a large share of weekly throughput. Engineers will continue to use their IDE and an AI chat for that work. SPDD will therefore be reserved for "important" changes, which is exactly the failure pattern of every governance tool that did not embed itself in the daily flow.</p>
+    <div class="posture fade-up d2">
+      <div class="posture-cell is-here">
+        <span class="posture-tag">Here</span>
+        <div class="posture-name">AI-assisted</div>
+        <p class="posture-text">Humans author everything. AI is invoked in moments, on demand.</p>
+        <p class="posture-text">Drafts, suggests, autocompletes, always inside a human-driven loop.</p>
+      </div>
+      <div class="posture-cell is-adjacent">
+        <span class="posture-tag">Adjacent</span>
+        <div class="posture-name">AI-augmented</div>
+        <p class="posture-text">Humans set intent, review, approve. AI runs in the editor and in CI continuously.</p>
+        <p class="posture-text">Generates whole diffs, runs reviews, fixes lints, drafts RFCs, files alerts.</p>
+      </div>
+      <div class="posture-cell is-far">
+        <span class="posture-tag">Far</span>
+        <div class="posture-name">AI-native</div>
+        <p class="posture-text">Humans set direction, define guardrails, approve high-stakes actions, handle escalations.</p>
+        <p class="posture-text">AI operates as a teammate: opens PRs, triages alerts, summarises incidents, owns recurring loops within bounded permissions.</p>
+      </div>
+    </div>
 
-      <h3>2.9  Several commands are designed as scripts where they should be agents</h3>
-      <p>Reading the command catalog carefully, several entries are natural candidates for autonomous loops rather than human-invoked scripts:</p>
-      <ul>
-        <li><code>cia post-deploy</code> queries Argo, Datadog, and Grafana for the one-hour window after every deploy.</li>
-        <li><code>cia alert-coverage</code> diffs current alerts against the canonical catalog and opens PRs.</li>
-        <li><code>cia deploy-window</code> enforces a time-of-day rule.</li>
-        <li><code>cia db-query-plan</code> compares execution plans before and after.</li>
-      </ul>
-      <p>These are bounded, low-blast-radius workflows that should run continuously, not scripts a human must remember to invoke. This is the clearest place where the design leaves the AI-native opportunity unrealised, and one of the easiest places to demonstrate value early.</p>
+    <p class="body-text fade-up d3" style="margin-top: 40px; max-width: 920px;">
+      The proposal's mental model: <em>the engineer is the author, the AI is a faster typewriter governed by templates.</em>  An AI-native model inverts that default: <em>the agent is the author of routine artifacts, the engineer is the editor in chief.</em>
+    </p>
+  </div>
+  <div class="slide__bottom">
+    <span>Section 3  ·  Posture spectrum</span>
+    <span class="hint">Continue <span class="arrow"></span></span>
+  </div>
+</section>
 
-      <h3>2.10  Adoption, cost, and outcomes are unspecified</h3>
-      <p>No pilot scope, no rollout sequence, no deprecation plan for competing workflows, no projected token spend or ROI threshold, and no commitment to which numbers will move. Cycle time, change failure rate, MTTR, review turnaround, incidents per thousand changes: none are named as success metrics. This is the most addressable of the gaps, and the one that will most affect leadership confidence in the programme.</p>
-    </section>
+<!-- ============ Slide 006: Alignment matrix ============ -->
+<section class="slide" id="s6">
+  <div class="chrome">
+    <div class="chrome__left">004 <span class="dot"></span> ALIGNMENT MATRIX</div>
+    <div class="chrome__right">
+      <span class="chrome__mark">xgeeks</span>
+      <span class="chrome__pageno">006 / 010</span>
+    </div>
+  </div>
+  <div class="frame">
+    <p class="kicker fade-up">Twelve dimensions, scored</p>
+    <h2 class="display fade-up d1" style="max-width: 1100px;">
+      Wellhub is aligned on<br>
+      <em>discipline.</em><br>
+      Off on everything that distinguishes<br>
+      AI-native from AI-assisted.
+    </h2>
 
-    <!-- 3 -->
-    <section id="positioning">
-      <h2><span class="section-num">3.</span>Positioning: AI-assisted versus AI-native</h2>
-      <p>Three operating postures are routinely conflated in internal pitches. Separating them clarifies the conversation about where this proposal lands.</p>
+    <div class="matrix fade-up d2" style="margin-top: 40px;">
+      <!-- left column -->
+      <div>
+        <div class="matrix__row">
+          <div class="matrix__label">Artifact discipline<small>Prompts, norms, safeguards in git, reviewed like code</small></div>
+          <div class="matrix__verdict"><span class="verdict-pill good">Aligned</span></div>
+        </div>
+        <div class="matrix__row">
+          <div class="matrix__label">Governance &amp; auditability<small>Every AI change traceable to its prompt</small></div>
+          <div class="matrix__verdict"><span class="verdict-pill good">Aligned</span></div>
+        </div>
+        <div class="matrix__row">
+          <div class="matrix__label">SDLC integration<small>Commands map to real stages, not ceremony</small></div>
+          <div class="matrix__verdict"><span class="verdict-pill good">Aligned</span></div>
+        </div>
+        <div class="matrix__row">
+          <div class="matrix__label">Model &amp; provider neutrality<small>Gateway-mediated, model-agnostic</small></div>
+          <div class="matrix__verdict"><span class="verdict-pill good">Aligned</span></div>
+        </div>
+        <div class="matrix__row">
+          <div class="matrix__label">Tool / context layer<small>Scripts hard-wired into one binary</small></div>
+          <div class="matrix__verdict"><span class="verdict-pill bad">Off</span></div>
+        </div>
+        <div class="matrix__row">
+          <div class="matrix__label">Evaluation flywheel<small>Versioned, but quality not measured</small></div>
+          <div class="matrix__verdict"><span class="verdict-pill bad">Off</span></div>
+        </div>
+      </div>
+      <!-- right column -->
+      <div>
+        <div class="matrix__row">
+          <div class="matrix__label">Agent runtime &amp; loops<small>One-shot commands only, no autonomy</small></div>
+          <div class="matrix__verdict"><span class="verdict-pill bad">Off</span></div>
+        </div>
+        <div class="matrix__row">
+          <div class="matrix__label">Autonomy gradient<small>Everything at copilot, no path up</small></div>
+          <div class="matrix__verdict"><span class="verdict-pill bad">Off</span></div>
+        </div>
+        <div class="matrix__row">
+          <div class="matrix__label">Surface area<small>CLI only, no IDE / PR / on-call presence</small></div>
+          <div class="matrix__verdict"><span class="verdict-pill bad">Off</span></div>
+        </div>
+        <div class="matrix__row">
+          <div class="matrix__label">Default authorship<small>Engineer authors, AI drafts on demand</small></div>
+          <div class="matrix__verdict"><span class="verdict-pill warn">Stuck</span></div>
+        </div>
+        <div class="matrix__row">
+          <div class="matrix__label">Security model for agents<small>No prompt-injection or credentials story</small></div>
+          <div class="matrix__verdict"><span class="verdict-pill bad">Off</span></div>
+        </div>
+        <div class="matrix__row">
+          <div class="matrix__label">Outcome measurement<small>No cycle time, no failure rate, no scores</small></div>
+          <div class="matrix__verdict"><span class="verdict-pill bad">Off</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide__bottom">
+    <span>Section 4  ·  Alignment matrix</span>
+    <span class="hint">Continue <span class="arrow"></span></span>
+  </div>
+</section>
 
-      <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Posture</th>
-            <th>What humans do</th>
-            <th>What AI does</th>
-            <th>Where the proposal sits</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>AI-assisted</strong></td>
-            <td>Author everything (code, docs, PRs, reviews). Invoke AI in moments, on demand.</td>
-            <td>Drafts, suggests, autocompletes, always inside a human-driven loop.</td>
-            <td><span class="pill bad">Here</span></td>
-          </tr>
-          <tr>
-            <td><strong>AI-augmented</strong></td>
-            <td>Set intent, review diffs, approve. AI runs in the editor and in CI continuously.</td>
-            <td>Generates whole diffs, runs reviews, fixes lints, drafts RFCs, files alerts. Humans steer per task.</td>
-            <td><span class="pill warn">Adjacent</span></td>
-          </tr>
-          <tr>
-            <td><strong>AI-native</strong></td>
-            <td>Set direction, define guardrails, approve high-stakes actions, handle escalations.</td>
-            <td>Operates as a teammate: opens PRs, triages alerts, runs game days, summarises incidents, owns recurring loops within bounded permissions.</td>
-            <td><span class="pill bad">Far</span></td>
-          </tr>
-        </tbody>
-      </table>
+<!-- ============ Slide 007: AI-native picture ============ -->
+<section class="slide" id="s7">
+  <div class="chrome">
+    <div class="chrome__left">005 <span class="dot"></span> THE AI-NATIVE VERSION</div>
+    <div class="chrome__right">
+      <span class="chrome__mark">xgeeks</span>
+      <span class="chrome__pageno">007 / 010</span>
+    </div>
+  </div>
+  <div class="frame">
+    <p class="kicker fade-up">A picture of the inverted default</p>
+    <h2 class="display fade-up d1" style="max-width: 1100px;">
+      Same SDLC stages.<br>
+      <em>Different authors.</em>
+    </h2>
+
+    <div class="grid-3-1 fade-up d2" style="margin-top: 36px;">
+      <div>
+        <div class="kicker" style="margin-bottom: 18px;">Agents that do real work</div>
+        <div class="agent">
+          <div class="agent__num">01</div>
+          <div>
+            <div class="agent__name">PR-review agent</div>
+            <div class="agent__desc">Runs on every PR before a human looks. Applies the DB-migration, public-endpoint, and observability-coverage checklists, plus Norms.</div>
+          </div>
+        </div>
+        <div class="agent">
+          <div class="agent__num">02</div>
+          <div>
+            <div class="agent__name">Alert-coverage agent</div>
+            <div class="agent__desc">Lives continuously against the canonical monitor catalog, opens PRs for gaps, owns the conversation, closes itself out.</div>
+          </div>
+        </div>
+        <div class="agent">
+          <div class="agent__num">03</div>
+          <div>
+            <div class="agent__name">Post-deploy agent</div>
+            <div class="agent__desc">Watches Argo, Datadog, Grafana for the one-hour window automatically, summarises Golden Signals, escalates only when needed.</div>
+          </div>
+        </div>
+        <div class="agent">
+          <div class="agent__num">04</div>
+          <div>
+            <div class="agent__name">On-call triage agent</div>
+            <div class="agent__desc">Reads PagerDuty, Datadog, Loki at incident start, drafts the timeline, proposes the rollback, links the runbook.</div>
+          </div>
+        </div>
+        <div class="agent">
+          <div class="agent__num">05</div>
+          <div>
+            <div class="agent__name">Dependency agent</div>
+            <div class="agent__desc">Classifies Dependabot risk, opens curated PRs, runs the test plan, escalates only the ambiguous ones.</div>
+          </div>
+        </div>
+        <div class="agent">
+          <div class="agent__num">06</div>
+          <div>
+            <div class="agent__name">IDE agent</div>
+            <div class="agent__desc">Knows the REASONS Canvas, Norms, and Safeguards by default. Artifact discipline shows up where engineers already work.</div>
+          </div>
+        </div>
       </div>
 
-      <p>The proposal's mental model can be stated plainly: <em>the engineer is the author; the AI is a faster typewriter governed by templates.</em> An AI-native model inverts that default: <em>the agent is the author of routine artifacts; the engineer is the editor in chief, the architect, and the escalation point.</em></p>
-
-      <h3>Where Wellhub is aligned, and where it is off</h3>
-
-      <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Dimension</th>
-            <th>Notes</th>
-            <th>Verdict</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td><strong>Artifact discipline</strong></td><td>Prompts, norms, and safeguards in git, reviewed like code, kept in sync with the codebase.</td><td><span class="pill good">Aligned</span></td></tr>
-          <tr><td><strong>Governance and auditability</strong></td><td>Every AI-assisted change traceable to the prompt that produced it.</td><td><span class="pill good">Aligned</span></td></tr>
-          <tr><td><strong>SDLC integration</strong></td><td>Commands mapped to real stages of work, not to invented ceremony.</td><td><span class="pill good">Aligned</span></td></tr>
-          <tr><td><strong>Model and provider neutrality</strong></td><td>Gateway-mediated calls, model-agnostic. Good positioning for the next two years of model churn.</td><td><span class="pill good">Aligned</span></td></tr>
-          <tr><td><strong>Tool and context layer</strong></td><td>Scripts hard-wired into one binary. Capabilities locked inside the CLI.</td><td><span class="pill bad">Off</span></td></tr>
-          <tr><td><strong>Evaluation flywheel</strong></td><td>Prompts are versioned, but quality is not measured. No regression CI, no eval sets.</td><td><span class="pill bad">Off</span></td></tr>
-          <tr><td><strong>Agent runtime and loops</strong></td><td>One-shot commands only. No plan-act-observe, no autonomy, no background work.</td><td><span class="pill bad">Off</span></td></tr>
-          <tr><td><strong>Autonomy gradient</strong></td><td>Everything sits at copilot. No articulated path to autopilot or autonomous workflows.</td><td><span class="pill bad">Off</span></td></tr>
-          <tr><td><strong>Surface area</strong></td><td>CLI only. No IDE agent, no PR agent, no on-call agent, no chat presence.</td><td><span class="pill bad">Off</span></td></tr>
-          <tr><td><strong>Default authorship</strong></td><td>Engineer authors, AI drafts on demand. AI-native operating models invert this default.</td><td><span class="pill warn">Stuck</span></td></tr>
-          <tr><td><strong>Security model for agents</strong></td><td>Redaction asserted in one sentence. No prompt-injection or credentials story.</td><td><span class="pill bad">Off</span></td></tr>
-          <tr><td><strong>Outcome measurement</strong></td><td>No cycle time, no change failure rate, no on-call hours, no eval scores committed to.</td><td><span class="pill bad">Off</span></td></tr>
-        </tbody>
-      </table>
+      <div>
+        <div class="kicker" style="margin-bottom: 18px;">Platform beneath the agents</div>
+        <div class="card is-accent" style="margin-bottom: 14px;">
+          <div class="card-label">MCP tool layer</div>
+          <div class="card-body">Internal systems (Datadog, Argo, Vault, IAM, Sonarcloud, the gympass-app catalog, Production Queries sheet) exposed as typed tools that any agent can call.</div>
+        </div>
+        <div class="card is-accent" style="margin-bottom: 14px;">
+          <div class="card-label">Evaluation flywheel</div>
+          <div class="card-body">Golden datasets per agent, regression CI on prompt and tool changes, quality dashboards visible to leadership, feedback ingested from real PRs and incidents.</div>
+        </div>
+        <div class="card is-accent">
+          <div class="card-label">Agent governance model</div>
+          <div class="card-body">Codifies the autonomy gradient (copilot, autopilot, autonomous). Permissions, blast-radius limits, audit logging, rollback. The artefact Infosec, Privacy, and Fraud will need.</div>
+        </div>
       </div>
+    </div>
+  </div>
+  <div class="slide__bottom">
+    <span>Section 5  ·  The AI-native picture</span>
+    <span class="hint">Continue <span class="arrow"></span></span>
+  </div>
+</section>
 
-      <div class="callout">
-        <span class="callout-head">Honest summary.</span>
-        Wellhub is aligned on the <em>discipline</em> side of AI-native engineering (governance, artifacts, audit, neutrality). It is off on every dimension that actually distinguishes AI-native work from AI-assisted work (agents, evaluation, tool layer, autonomy gradient, in-flow surfaces, outcome measurement). The proposal raises the floor; the work ahead is to raise the ceiling.
+<!-- ============ Slide 008: Five moves ============ -->
+<section class="slide" id="s8">
+  <div class="chrome">
+    <div class="chrome__left">006 <span class="dot"></span> THE PATH FORWARD</div>
+    <div class="chrome__right">
+      <span class="chrome__mark">xgeeks</span>
+      <span class="chrome__pageno">008 / 010</span>
+    </div>
+  </div>
+  <div class="frame">
+    <p class="kicker fade-up">Five high-leverage moves</p>
+    <h2 class="display fade-up d1" style="max-width: 1100px;">
+      Sequenced.<br>
+      <em>Each independently valuable.</em>
+    </h2>
+    <p class="body-text fade-up d2" style="margin-top: 22px; max-width: 760px;">
+      Each move is tied to a measurable outcome. Each one is defensible at leadership level. None of them requires discarding the current proposal.
+    </p>
+
+    <div class="steps fade-up d3">
+      <div class="step">
+        <div class="step__n">01</div>
+        <div class="step__title">Reframe around outcomes, not artifacts</div>
+        <div class="step__desc">PR cycle time, change failure rate, on-call hours per incident. Make the programme falsifiable in numbers leadership can evaluate.</div>
       </div>
-    </section>
+      <div class="step">
+        <div class="step__n">02</div>
+        <div class="step__title">Move to in-IDE and in-PR agents</div>
+        <div class="step__desc">Keep artifact discipline as shared context. Add an agentic PR reviewer that runs before humans. Governance comes to engineers, not the other way around.</div>
+      </div>
+      <div class="step">
+        <div class="step__n">03</div>
+        <div class="step__title">Build the evaluation flywheel first</div>
+        <div class="step__desc">Golden datasets, regression CI, quality dashboards, feedback ingestion from PRs and incidents. Without this, no agent earns more autonomy than day one.</div>
+      </div>
+      <div class="step">
+        <div class="step__n">04</div>
+        <div class="step__title">Pilot one autonomous agent</div>
+        <div class="step__desc">Alert-coverage gap-filler, dependency triage, or on-call summariser. High volume, low blast radius. One agent in production is worth ten decks.</div>
+      </div>
+      <div class="step">
+        <div class="step__n">05</div>
+        <div class="step__title">MCP layer + governance, in parallel</div>
+        <div class="step__desc">Typed tools any agent can call. Autonomy gradient codified per agent. Permissions, audit, rollback. The substrate that turns one pilot into a fleet.</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide__bottom">
+    <span>Section 6  ·  Five moves</span>
+    <span class="hint">Continue <span class="arrow"></span></span>
+  </div>
+</section>
 
-    <!-- 4 -->
-    <section id="picture">
-      <h2><span class="section-num">4.</span>A picture of the AI-native version</h2>
-      <p>To make the gap concrete, here is what the same SDLC stages, the same Norms, and the same Safeguards would look like if reached differently. None of what follows requires discarding the current proposal. Most of it requires inverting one assumption: that the engineer is always the author. Once the agent is allowed to initiate, the rest of the architecture rearranges itself naturally.</p>
+<!-- ============ Slide 009: Outcomes contract ============ -->
+<section class="slide" id="s9">
+  <div class="chrome">
+    <div class="chrome__left">THE BET <span class="dot"></span> OUTCOMES CONTRACT</div>
+    <div class="chrome__right">
+      <span class="chrome__mark">xgeeks</span>
+      <span class="chrome__pageno">009 / 010</span>
+    </div>
+  </div>
+  <div class="frame">
+    <p class="kicker fade-up">What leadership signs up to</p>
+    <h2 class="display fade-up d1" style="max-width: 1100px;">
+      Replace<br>
+      "new tool" <span class="light">with</span><br>
+      <em>new operating leverage.</em>
+    </h2>
 
-      <h3>Agents that do real work</h3>
-      <ul>
-        <li><strong>PR-review agent.</strong> Runs on every pull request before a human looks at it. Applies the DB-migration checklist, the public-endpoint checklist, the observability-coverage check, and the Norms catalog. Human reviewers see a pre-triaged PR with the security and privacy boxes already verified or flagged.</li>
-        <li><strong>Alert-coverage agent.</strong> Lives continuously against the canonical monitor catalog, opens PRs for gaps, owns the conversation on those PRs, and closes itself out. Today this is <code>cia alert-coverage</code>, a script a human must remember to invoke.</li>
-        <li><strong>Post-deploy agent.</strong> Watches Argo, Datadog, and Grafana for the one-hour window automatically, summarises Golden Signals, escalates only when something looks off. Today this is <code>cia post-deploy</code>, also a script a human must remember to invoke.</li>
-        <li><strong>On-call triage agent.</strong> Reads PagerDuty, Datadog, and Loki at incident start, drafts the timeline, proposes the rollback, links the relevant runbook. Today the runbook is a markdown template; the live incident work remains entirely manual.</li>
-        <li><strong>Dependency agent.</strong> Classifies Dependabot risk, opens curated PRs, runs the test plan, escalates only the ambiguous ones.</li>
-        <li><strong>IDE agent.</strong> Knows the REASONS Canvas, the Norms, and the Safeguards by default. The artifact discipline shows up where engineers already work, rather than in a CLI they have to remember.</li>
-      </ul>
+    <div class="grid-3 fade-up d2" style="margin-top: 48px;">
+      <div class="kpi">
+        <div class="kpi-label">PR cycle time</div>
+        <div class="kpi-value">−<em>X</em>%</div>
+        <div class="kpi-sub">via in-IDE and in-PR agents, measured on pilot scope</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Change failure rate</div>
+        <div class="kpi-value">−<em>X</em>%</div>
+        <div class="kpi-sub">via agentic PR pre-review applying all checklists</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">On-call human minutes</div>
+        <div class="kpi-value">−<em>X</em>%</div>
+        <div class="kpi-sub">via on-call triage agent at incident start</div>
+      </div>
+    </div>
 
-      <h3>The platform beneath the agents</h3>
-      <ul>
-        <li><strong>A shared MCP tool layer</strong> exposing the gympass-app catalog, Datadog, Argo, Vault, IAM, Sonarcloud, and the Production Queries sheet as typed tools that any agent can call.</li>
-        <li><strong>An evaluation flywheel</strong> providing golden datasets per agent, regression CI on prompt and tool changes, quality dashboards visible to engineering leadership, and a feedback loop from real PRs and incidents back into prompts and eval sets.</li>
-        <li><strong>An agent governance model</strong> that codifies the autonomy gradient (copilot, autopilot, autonomous) per agent, with explicit permissions, blast-radius limits, audit logging, and rollback policy. This is the artefact Infosec, Privacy, and Fraud will need in order to approve scaled agentic engineering.</li>
-      </ul>
-    </section>
+    <div class="card fade-up d3" style="margin-top: 32px; max-width: 760px; border-color: var(--accent-dim); background: linear-gradient(180deg, rgba(107,163,255,0.08), var(--bg-2));">
+      <div class="card-label" style="color: var(--accent);">Constraint</div>
+      <div class="card-body" style="font-size: 15px;">Hold <strong>security and privacy gate pass-rate at 100%</strong> while the numbers above improve. AI raises the floor; humans still own the ceiling. Every regulated stage of the SDLC keeps its human approval.</div>
+    </div>
+  </div>
+  <div class="slide__bottom">
+    <span>The bet  ·  Outcomes contract</span>
+    <span class="hint">Continue <span class="arrow"></span></span>
+  </div>
+</section>
 
-    <!-- 5 -->
-    <section id="readiness">
-      <h2><span class="section-num">5.</span>Agentic readiness today, and the real blockers</h2>
-      <p>Based purely on what the document reveals, the position can be stated cleanly:</p>
-      <ul>
-        <li><strong>Strongest asset:</strong> artifact discipline. Prompts in git, two-way sync, central Norms and Safeguards. Reusable across whatever Wellhub builds next.</li>
-        <li><strong>Biggest gap:</strong> there is no platform on which agents can plan, act, and self-correct, and no evaluation infrastructure that would tell anyone whether they are working.</li>
-        <li><strong>Current stage:</strong> pre-agentic. The proposed system does not yet contain agents in any meaningful sense.</li>
-      </ul>
-      <p>The blockers to moving along the agentic curve are organisational and platform-level, not model-level. Each is addressable in months rather than years, provided it is named explicitly:</p>
-      <ol>
-        <li><strong>No agent runtime or orchestration substrate.</strong> A CLI invoked by a human is not a substrate. Agents need a place to hold state across steps, call tools, retry, escalate, and be observed.</li>
-        <li><strong>No evaluation infrastructure.</strong> Autonomy cannot scale beyond what can be measured. Without per-task eval sets and regression suites, no one will sign off on more autonomy.</li>
-        <li><strong>No shared tool layer.</strong> Today's integrations are scripts wired into one binary. Agents need a typed, shared tool surface (MCP or equivalent).</li>
-        <li><strong>No agent governance model.</strong> Before any agent acts in production, leadership needs explicit answers on which agents can merge, open PRs to which paths, touch which environments, hold which secrets, and how rollback works if an agent misbehaves.</li>
-        <li><strong>A cultural default that the human is the author.</strong> Every command in the proposal is shaped around an engineer invoking it. Moving to AI-native requires inverting that default.</li>
-        <li><strong>A single, narrow surface area.</strong> The CLI is one channel. Agents need to live where work happens: IDE, PR, on-call, dashboards, internal chat.</li>
-      </ol>
-    </section>
+<!-- ============ Slide 010: Closing ============ -->
+<section class="slide" id="s10">
+  <div class="chrome">
+    <div class="chrome__left">CLOSING <span class="dot"></span> THE TWELVE-MONTH STORY</div>
+    <div class="chrome__right">
+      <span class="chrome__mark">xgeeks</span>
+      <span class="chrome__pageno">010 / 010</span>
+    </div>
+  </div>
+  <div class="frame">
+    <p class="kicker fade-up">If this lands</p>
+    <h2 class="display fade-up d1" style="max-width: 1100px;">
+      The right first chapter,<br>
+      not yet <em>the book.</em>
+    </h2>
 
-    <!-- 6 -->
-    <section id="path">
-      <h2><span class="section-num">6.</span>The path forward: five high-leverage moves</h2>
-      <p>Five recommended moves, sequenced so that each is independently valuable and each strengthens the next. They are designed to be defensible at leadership level: every move is tied to a measurable outcome.</p>
+    <div class="tag-row fade-up d2">
+      <div class="tag">
+        <div class="tag-head">We standardised the context</div>
+        <div class="tag-body">Norms, Safeguards, and the REASONS Canvas are how every Wellhub agent reasons about our systems.</div>
+      </div>
+      <div class="tag">
+        <div class="tag-head">We built the substrate</div>
+        <div class="tag-body">A tool layer, an evaluation flywheel, and an agent governance model that Infosec, Privacy, and Fraud approved.</div>
+      </div>
+      <div class="tag">
+        <div class="tag-head">We moved load onto agents</div>
+        <div class="tag-body">In PR review, alert coverage, on-call triage, dependency hygiene. The numbers moved with them.</div>
+      </div>
+      <div class="tag">
+        <div class="tag-head">We did not lose a gate</div>
+        <div class="tag-body">Every regulated SDLC stage kept its human approval. AI raised the floor; humans still own the ceiling.</div>
+      </div>
+    </div>
 
-      <h3>6.1  Reframe the bet around outcomes, not artifacts</h3>
-      <p>Replace the current narrative ("we will add a CLI with N commands tied to SDLC stages") with a measurable outcome contract:</p>
-      <ul>
-        <li>Reduce <strong>PR cycle time</strong> by X% in Y months on a pilot scope.</li>
-        <li>Reduce <strong>change failure rate</strong> by X% via agentic pre-review.</li>
-        <li>Reduce <strong>on-call human minutes</strong> per incident by X% via agentic triage.</li>
-        <li>Hold <strong>security and privacy gate pass-rate</strong> at 100% while the numbers above improve.</li>
-      </ul>
-      <p>This shifts the conversation from "new tool" to "new operating leverage," and makes the programme falsifiable in a way leadership can evaluate.</p>
+    <p class="pull-quote fade-up d3" style="margin-top: 64px;">
+      That is the difference between an<br>
+      AI-assisted Wellhub and an <em>AI-native</em> Wellhub.
+    </p>
 
-      <h3>6.2  Move from CLI to in-IDE and in-PR agents, keeping the artifact discipline</h3>
-      <p>The strongest idea in the proposal (prompts as versioned artifacts) does not require a CLI. It requires shared, governed context. Concretely:</p>
-      <ul>
-        <li>Adopt an in-editor agent with org-level rules loaded as system context. The REASONS Canvas, Norms, and Safeguards live there, not in <code>templates/</code>.</li>
-        <li>Add an agentic PR reviewer that runs on every PR before a human looks at it, applying the security checklist, DB-migration checklist, public-endpoint checklist, and observability coverage check.</li>
-        <li>Keep <code>cia verify</code> as the CI gate, but evolve it to verify <em>agent output</em>, not only CLI output.</li>
-      </ul>
-      <p>Engineers do not have to change their workflow; the governance comes to them.</p>
+    <div class="cover-slot fade-up d4">
+      <div class="cover-meta" style="margin-top: 40px;">
+        <span>Confidential working analysis</span>
+        <span>Prepared by xgeeks</span>
+        <span><a href="simple.html" style="color: inherit; text-decoration: underline;">Document view</a></span>
+      </div>
+    </div>
+  </div>
+  <div class="slide__bottom">
+    <span>End  ·  010 / 010</span>
+    <span class="hint"><a href="#s1" style="color: inherit; text-decoration: none;">Return to top</a></span>
+  </div>
+</section>
 
-      <h3>6.3  Build the evaluation flywheel before scaling autonomy</h3>
-      <p>Stand up a small, sharp evaluation capability: golden datasets per use case, regression CI for any prompt or system-context change, quality dashboards visible to engineering leadership, and a feedback ingestion path from real PRs and incidents. Without this, no agent will ever earn more autonomy than it has on day one, and leadership will not sign off on giving it more. This is the single highest-leverage missing capability in the current design.</p>
+</main>
 
-      <h3>6.4  Pilot one fully autonomous agent on a high-volume, low-blast-radius loop</h3>
-      <p>Pick one workflow Wellhub already runs manually, knows well, and can measure. The proposal already contains strong candidates:</p>
-      <ul>
-        <li><strong>Alert-coverage gap-filler.</strong> The document already proposes diffing current alerts against the canonical catalog. Let an agent open the PRs, with a human approving merges.</li>
-        <li><strong>Dependency upgrade triage.</strong> Agent reads Dependabot output, classifies risk, opens curated PRs, drafts test plans.</li>
-        <li><strong>On-call summariser.</strong> Agent reads PagerDuty, Datadog, and Loki at incident start, drafts the timeline, proposes the rollback. The human still calls the shot.</li>
-      </ul>
-      <p>One credible autonomous agent in production is worth ten slide decks. It also generates the operational learning required to expand autonomy safely.</p>
+<script>
+(function () {
+  // Fade-in on enter viewport
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.classList.add("in");
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll(".fade-up").forEach(el => io.observe(el));
 
-      <h3>6.5  Stand up the MCP tool layer and an agent governance model in parallel</h3>
-      <p>These are the platform investments that unlock everything beyond a pilot:</p>
-      <ul>
-        <li><strong>Tool layer.</strong> Expose Wellhub's internal systems (gympass-app catalog, Datadog, Argo, Vault, IAM, Sonarcloud, Production Queries sheet) as typed tools any agent can call. The current script orchestration becomes one consumer of that layer rather than the only one.</li>
-        <li><strong>Governance model.</strong> Codify the autonomy gradient (copilot, autopilot, autonomous) per agent, with explicit permissions, blast-radius limits, audit logging, and rollback policy. This is the artefact Infosec, Privacy, and Fraud will need in order to approve scaled agentic engineering.</li>
-      </ul>
-    </section>
+  // Active section indicator in the deck-progress nav
+  const slides = Array.from(document.querySelectorAll(".slide"));
+  const dots = new Map(
+    Array.from(document.querySelectorAll(".deck-progress a"))
+      .map(a => [a.dataset.target, a])
+  );
+  const slideIo = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting && e.intersectionRatio > 0.5) {
+        dots.forEach(a => a.classList.remove("is-active"));
+        const dot = dots.get(e.target.id);
+        if (dot) dot.classList.add("is-active");
+      }
+    });
+  }, { threshold: [0.5, 0.75] });
+  slides.forEach(s => slideIo.observe(s));
 
-    <!-- 7 -->
-    <section id="closing">
-      <h2><span class="section-num">7.</span>Closing perspective</h2>
-      <p>SPDD/<code>cia</code> as currently designed will make Wellhub better governed. It will not, on its own, make Wellhub measurably faster, and it will not make Wellhub AI-native. Used as the whole strategy, it carries a real risk of becoming an enhanced governance layer rather than a step-change in delivery capability: more required artifacts, more required reviews, the same human bottleneck, with a stronger audit trail.</p>
-      <p>Used as the foundation for an agentic platform, however, the proposal becomes the first credible chapter of an AI-native transformation. The artifact discipline stays. An evaluation flywheel and a tool layer get built. The authorship default inverts. Specific workflows move along an explicit autonomy gradient. Each step is measurable, and each one keeps the human approvals the SDLC was designed to protect.</p>
-      <p>A twelve-month version of the story that leadership should be able to tell:</p>
-      <ul>
-        <li><strong>We standardised the context.</strong> Norms, Safeguards, and the REASONS Canvas are how every Wellhub agent reasons about our systems.</li>
-        <li><strong>We built the substrate.</strong> A tool layer, an evaluation flywheel, and an agent governance model that Infosec, Privacy, and Fraud approved.</li>
-        <li><strong>We moved load onto agents.</strong> In PR review, in alert coverage, in on-call triage, in dependency hygiene. The numbers moved with them (cycle time, change failure rate, MTTR, on-call hours).</li>
-        <li><strong>We did not lose a gate.</strong> Every regulated stage of the SDLC kept its human approval. AI raised the floor; humans still own the ceiling.</li>
-      </ul>
-      <p>That is the difference between an AI-assisted Wellhub and an AI-native Wellhub. The current proposal is the right first chapter. The work ahead is to write the rest of the book.</p>
-    </section>
+  // Keyboard navigation: arrow keys, page up/down, space
+  let current = 0;
+  const goTo = (i) => {
+    if (i < 0 || i >= slides.length) return;
+    current = i;
+    slides[i].scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+  // Re-sync `current` to whatever is mostly in view
+  const syncIo = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting && e.intersectionRatio > 0.6) {
+        current = slides.indexOf(e.target);
+      }
+    });
+  }, { threshold: 0.6 });
+  slides.forEach(s => syncIo.observe(s));
 
-  </main>
-</div>
+  document.addEventListener("keydown", (e) => {
+    if (e.target && e.target.matches("input, textarea, [contenteditable]")) return;
+    if (e.key === "ArrowDown" || e.key === "PageDown" || (e.key === " " && !e.shiftKey)) {
+      e.preventDefault(); goTo(current + 1);
+    } else if (e.key === "ArrowUp" || e.key === "PageUp" || (e.key === " " && e.shiftKey)) {
+      e.preventDefault(); goTo(current - 1);
+    } else if (e.key === "Home") {
+      e.preventDefault(); goTo(0);
+    } else if (e.key === "End") {
+      e.preventDefault(); goTo(slides.length - 1);
+    }
+  });
+})();
+</script>
 
-<footer class="site-footer">
-  <p>Confidential working analysis. Not for external distribution without approval.</p>
-</footer>
-
-<script src="assets/nav.js" defer></script>
 </body>
 </html>
