@@ -9,9 +9,12 @@ The source of truth (analysis content, drafts, PDFs, the original proposal, meet
 
 ## Pages
 
-- [`index.html`](index.html) — analysis slide deck
-- [`analysis.html`](analysis.html) — document view (long-form read)
-- `business-case.html` — business-case deck (narrative only) — _not yet published; lands via the publish step before the June 16 board meeting_
+| Page | What it is | Source | Live |
+|---|---|---|---|
+| [`index.html`](index.html) | Analysis slide deck | this repo | https://fabiosampaio-91.github.io/wellhub-spdd-site/ |
+| [`analysis.html`](analysis.html) | Document view (long-form read) | this repo | https://fabiosampaio-91.github.io/wellhub-spdd-site/analysis.html |
+| `business-case.html` | Business-case deck (narrative only) | _pending_ | _not yet published; lands before the June 16 board meeting_ |
+| [`assets/styles.css`](assets/styles.css), [`assets/nav.js`](assets/nav.js) | Shared CSS + TOC highlighter | this repo | — |
 
 ## Updating
 
